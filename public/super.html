@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>إدارة المنصة (سوبر أدمن)</title>
+<style>
+body{margin:0;font-family:'Segoe UI',Tahoma,Arial;background:#1c1917;color:#e7e5e4}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px}
+.card{background:#292524;border:1px solid #44403c;border-radius:16px;padding:20px;margin-bottom:16px}
+input,select{padding:10px 12px;border:1px solid #44403c;border-radius:10px;background:#1c1917;color:#e7e5e4;font-family:inherit}
+button{padding:10px 16px;border-radius:10px;border:0;background:#a7c4a0;color:#1c1917;font-weight:700;cursor:pointer}
+button.danger{background:#b35548;color:#fff}button.ghost{background:#44403c;color:#e7e5e4}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.row>*{flex:1;min-width:140px}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px;border-bottom:1px solid #44403c;text-align:right}
+.pill{font-size:12px;padding:3px 10px;border-radius:12px;background:#44403c}
+.pill.off{background:#7c2d12}.pill.trial{background:#6b4e0c}
+#login{max-width:360px;margin:60px auto;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap" id="login">
+<div class="card"><h2>👑 إدارة المنصة</h2><p><small>مالك النظام فقط (SUPERADMIN_PASSWORD)</small></p>
+<div id="e" style="color:#f5a89c"></div>
+<input type="password" id="p" placeholder="باسورد السوبر أدمن" style="width:100%;margin:8px 0" onkeydown="if(event.key==='Enter')go()">
+<button onclick="go()" style="width:100%">دخول</button></div>
+</div>
+<div class="wrap" id="main" style="display:none">
+<div class="card"><h2>👑 العيادات <button class="ghost" onclick="load()">تحديث ↻</button> <button class="ghost" onclick="logout()">خروج</button></h2>
+<div class="row"><input id="nSlug" placeholder="slug إنجليزي (shefa)" dir="ltr"><input id="nName" placeholder="اسم العيادة"><button onclick="create()">+ عيادة (14 يوم تجربة)</button></div>
+<div id="list"></div></div>
+<div class="card"><h2>📥 طلبات العيادات الجديدة</h2><div id="reqs"></div></div>
+<div class="card"><h2>📊 نظرة المنصة (أعطال وحالة)</h2><div id="over"></div></div>
+</div>
+<script>
+const esc=s=>String(s||'').replace(/</g,'&lt;');
+async function go(){
+  const r=await fetch('/api/super/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:document.getElementById('p').value})}).then(x=>x.json());
+  if(r.ok){document.getElementById('login').style.display='none';document.getElementById('main').style.display='block';load();}
+  else document.getElementById('e').textContent=r.error||'غلط';
+}
+async function logout(){await fetch('/api/super/logout',{method:'POST'});location.reload();}
+async function load(){
+  const t=await fetch('/api/super/tenants').then(r=>r.json());
+  if(t.error){document.getElementById('main').style.display='none';document.getElementById('login').style.display='block';return;}
+  document.getElementById('list').innerHTML='<table><thead><tr><th>العيادة</th><th>الخطة</th><th>الحالة</th><th>واتساب</th><th></th></tr></thead><tbody>'+t.map(x=>{
+    const sub=x.sub||{};
+    const st=sub.active?`<span class="pill ${sub.plan==='trial'?'trial':''}">${esc(sub.plan||'active')}${sub.daysLeft?' ('+sub.daysLeft+' يوم)':''}</span>`:'<span class="pill off">منتهي</span>';
+    return `<tr><td><b dir="ltr">${esc(x.slug)}</b><br><small>${esc(x.name||'')}</small></td><td>${esc(x.plan||'-')}</td><td>${st}</td><td>${x.whatsapp&&x.whatsapp.phoneId?'<small dir="ltr">'+esc(x.whatsapp.phoneId)+'</small>':'—'}</td><td>
+    <button class="ghost" onclick="dash('${esc(x.slug)}')">اللوحة</button>
+    <button class="ghost" onclick="site('${esc(x.slug)}')">الموقع</button>
+    <button class="ghost" onclick="activate('${esc(x.slug)}')">تفعيل مدفوع</button>
+    <button class="ghost" onclick="suspend('${esc(x.slug)}')">إيقاف</button>
+    <button class="danger" onclick="del('${esc(x.slug)}')">حذف</button></td></tr>`;}).join('')+'</tbody></table>';
+  const rq=await fetch('/api/super/requests').then(r=>r.json()).catch(()=>[]);
+  document.getElementById('reqs').innerHTML=(rq||[]).filter(x=>x.status==='pending').map(x=>`<div class="msg">🏥 <b>${esc(x.name)}</b> (<span dir="ltr">${esc(x.slug)}</span>) — <span dir="ltr">${esc(x.phone)}</span> <button onclick="approve('${x.id}')">موافقة ✅</button> <button class="danger" onclick="reject('${x.id}')">رفض</button></div>`).join('')||'<small>لا توجد طلبات معلقة</small>';
+  const ov=await fetch('/api/super/overview').then(r=>r.json()).catch(()=>[]);
+  document.getElementById('over').innerHTML=(ov||[]).map(x=>{
+    const bad=(x.sub&&!x.sub.active)||(x.cronFail&&x.cronFail.length)||(x.queue&&x.queue.failed>0)||(x.backup&&!x.backup.last);
+    return `<div class="msg">${bad?'🔴':'🟢'} <b dir="ltr">${esc(x.slug)}</b> — حجوزات نشطة: ${x.activeBookings??'-'} — باك أب: ${x.backup&&x.backup.last?esc(x.backup.last):'مفيش'}${x.cronFail&&x.cronFail.length?' — cron فاشل: '+esc(x.cronFail.join('،')):''}${x.queue&&x.queue.failed?' — طابور فاشل: '+x.queue.failed:''}</div>`;}).join('')||'—';
+}
+async function approve(id){const r=await fetch('/api/super/requests/'+id+'/approve',{method:'POST'}).then(x=>x.json());if(r.error)return alert(r.error);alert('اتعملت العيادة ✅\nيوزر: '+r.adminUser+'\nباسورد: '+r.adminPass+'\nابعتهم للدكتور (يغير الباسورد بعد الدخول)');load();}
+async function reject(id){await fetch('/api/super/requests/'+id+'/reject',{method:'POST'});load();}
+async function create(){
+  const slug=document.getElementById('nSlug').value.trim(),name=document.getElementById('nName').value.trim();
+  const r=await fetch('/api/super/tenants',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug,name})}).then(x=>x.json());
+  if(r.error)return alert(r.error);load();
+}
+async function activate(s){await fetch('/api/super/tenants/'+s,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'active',plan:'paid',trialEnds:null})});load();}
+async function suspend(s){if(!confirm('توقف '+s+'؟'))return;await fetch('/api/super/tenants/'+s,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'suspended'})});load();}
+async function del(s){if(!confirm('تحذف العيادة وكل داتاها؟ '+s))return;await fetch('/api/super/tenants/'+s,{method:'DELETE'});load();}
+  function dash(s){location.href='/?clinic='+s;}
+  function site(s){location.href='/site.html?clinic='+s;}
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# أسرار وبيانات مرضى — ممنوع تدخل Git أبداً
+.env
+.env.local
+data.db
+data.db-journal
+data.db-wal
+data.db-shm
+data.json
+backups/
+tenants/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db

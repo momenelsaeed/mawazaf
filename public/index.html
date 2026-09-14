@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>موظف AI مصري — لوحة التحكم</title>
+<style>
+/* هوية الموقع العام — أخضر طبي متدرج، مريح فاتح وليلي */
+:root{
+  --bg:#f4f2ea; --card:#fffdf7; --line:#e5dac4;
+  --ink:#3d3830; --mut:#8c8474;
+  --a1:#2f5d50; --a2:#3e7d6a; --gold:#c9a24b;
+  --accent:#2f5d50; --accent-soft:#e7efe9;
+  --chatbg:#ece7d7; --bot:#dcebe0; --bot-ink:#2c3a2d;
+  --shadow:0 4px 18px rgba(60,50,30,.09);
+}
+body.dark{
+  --bg:#1c1917; --card:#292524; --line:#44403c;
+  --ink:#e7e5e4; --mut:#a8a29e;
+  --accent:#a7c4a0; --accent-soft:#33402f;
+  --chatbg:#292524; --bot:#3a4a3a; --bot-ink:#e8f0e4;
+  --shadow:0 4px 18px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',Tahoma,'Cairo',Arial;background:var(--bg);color:var(--ink);font-size:15.5px;line-height:1.8;transition:background .3s,color .3s}
+header{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+header::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 88% 15%,rgba(255,255,255,.18),transparent 45%);pointer-events:none}
+header h1{margin:0;font-size:21px;font-weight:800;position:relative;z-index:1}header p{margin:2px 0 0;color:rgba(255,255,255,.85);font-size:13.5px;position:relative;z-index:1}
+.badges{display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:relative;z-index:1}
+.badge{font-size:12.5px;padding:6px 14px;border-radius:20px;background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.35)}
+.theme-btn{border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);color:#fff;padding:8px 15px;font-size:13.5px;border-radius:12px;cursor:pointer}
+.theme-btn:hover{background:rgba(255,255,255,.25)}
+main{max-width:1080px;margin:0 auto;padding:22px 18px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+@media(max-width:800px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.stat::before{content:"";position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,var(--a1),var(--a2))}
+.stat small{color:var(--mut);font-size:13px}.stat b{font-size:28px;display:block;font-weight:800;margin-top:2px;color:var(--a1)}
+body.dark .stat b{color:var(--accent)}
+.tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
+.tab{border:1px solid var(--line);padding:11px 18px;border-radius:14px;background:var(--card);color:var(--ink);cursor:pointer;font-weight:700;font-size:14.5px;transition:all .15s;font-family:inherit}
+.tab:hover{border-color:var(--a2);transform:translateY(-1px)}
+.tab.active{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;border-color:transparent;box-shadow:var(--shadow)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+.chatbox{min-height:340px;max-height:420px;overflow:auto;background:var(--chatbg);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.bub{max-width:82%;padding:10px 16px;border-radius:16px;font-size:15px;line-height:1.9;white-space:pre-wrap;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.bub.client{background:var(--card);color:var(--ink);align-self:flex-start;border:1px solid var(--line);border-bottom-right-radius:5px}
+.bub.bot{background:var(--bot);color:var(--bot-ink);align-self:flex-end;border-bottom-left-radius:5px}
+.row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+input,select,textarea{padding:11px 14px;border:1px solid var(--line);border-radius:12px;font-size:15px;background:var(--card);color:var(--ink);font-family:inherit}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--a2);outline-offset:1px;border-color:var(--a2)}
+button{padding:11px 18px;border-radius:12px;border:0;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;cursor:pointer;font-weight:700;font-size:14.5px;font-family:inherit;transition:filter .15s}
+button:hover{filter:brightness(1.08)}
+button.ghost{background:var(--accent-soft);color:var(--ink)}button.danger{background:linear-gradient(135deg,#a34a3e,#b35548)}button.green{background:linear-gradient(135deg,#4a6e4e,#5b7c5a)}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.quick button{background:var(--accent-soft);color:var(--ink);font-size:13.5px;padding:8px 13px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+thead tr{background:var(--accent-soft)}
+th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right}th{color:var(--mut);font-size:12.5px;font-weight:700}
+tbody tr:hover{background:rgba(62,125,106,.05)}
+.pill{font-size:12.5px;padding:4px 12px;border-radius:20px;background:var(--accent-soft);color:var(--ink);font-weight:600}
+.pill.cancelled,.pill.no_show{background:#f5d5cf;color:#7c2d12}
+.pill.reminded{background:#f3e8c8;color:#6b4e0c}
+.pill.attended{background:#d3e8d3;color:#2f5b2f}
+.msg{padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.msg small{color:var(--mut)}
+.hidden{display:none}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#2f2b26;color:#fff;padding:12px 22px;border-radius:12px;display:none;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.25);z-index:99}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+body.dark{background:radial-gradient(1200px 500px at 85% -5%,#2e2a25 0%,#1c1917 55%) fixed,#1c1917}
+body.dark .card{border-color:#4a443c;box-shadow:0 6px 22px rgba(0,0,0,.4)}
+body.dark .tab{border-color:#4a443c}
+body.dark thead tr{background:#33302b}
+body.dark input,body.dark select,body.dark textarea{border-color:#4a443c}
+.tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0}
+.tab{text-align:center}
+.tab.active{box-shadow:0 4px 14px rgba(47,93,80,.4)}
+.stat b{display:flex;align-items:center;gap:8px}
+.stat .ic{font-size:22px}
+.chat-empty{text-align:center;color:var(--mut);padding:60px 10px;font-size:15px}
+.card h3.fancy{display:flex;align-items:center;gap:8px}
+label{font-size:14px;color:var(--mut)}
+h3{margin-top:0}h4{color:var(--a1)}body.dark h4{color:var(--accent)}
+.card>h3:first-child,.card>h4:first-child{margin-top:0}
+</style>
+</head>
+<body>
+<header>
+<div><h1>🩺 <span id="bizName">موظف AI مصري</span></h1><p>بيرد واتساب ويحجز مواعيد — <a href="/site.html" style="color:#fff">الموقع العام ←</a> · <a href="/help.html" target="_blank" style="color:#fff">مساعدة ❓</a></p></div>
+<div class="badges"><span class="badge" id="bRole">دور: ...</span><span class="badge" id="bWA">واتساب: تجريبي</span><span class="badge" id="bAI">ذكاء: تجريبي</span><button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙 ليلي مريح</button><button class="theme-btn" onclick="logout()">خروج ⎋</button></div>
+</header>
+<main>
+<div class="stats">
+<div class="stat"><small>إجمالي الحجوزات</small><b><span class="ic">📅</span><span id="sTotal">-</span></b></div>
+<div class="stat"><small>حجوزات النهاردة</small><b><span class="ic">🗓️</span><span id="sToday">-</span></b></div>
+<div class="stat"><small>عدد العملاء</small><b><span class="ic">👥</span><span id="sClients">-</span></b></div>
+<div class="stat"><small>إجمالي الرسائل</small><b><span class="ic">💬</span><span id="sMsgs">-</span></b></div>
+</div>
+<div class="tabs">
+<button class="tab active" data-t="chat" onclick="tab('chat')">💬 محادثة تجريبية</button>
+<button class="tab" data-t="books" onclick="tab('books')">📅 الحجوزات</button>
+<button class="tab" data-t="msgs" onclick="tab('msgs')">📨 الرسائل</button>
+<button class="tab" data-t="hands" onclick="tab('hands')">🙋 محتاج بشري <span id="hCount"></span></button>
+<button class="tab" data-t="reports" onclick="tab('reports')">📊 تقارير</button>
+<button class="tab" data-t="kb" onclick="tab('kb')">📚 المعرفة</button>
+<button class="tab" data-t="patients" onclick="tab('patients')">👤 مرضى</button>
+<button class="tab" data-t="audit" onclick="tab('audit')">🛡️ سجل</button>
+<button class="tab" data-t="users" id="tab-users" onclick="tab('users')">👥 مستخدمون</button>
+<button class="tab" data-t="setup" onclick="tab('setup')">⚙️ الإعدادات</button>
+</div>
+
+<div class="card" id="p-chat">
+<div class="row" style="margin-top:0;justify-content:space-between;align-items:center"><span style="font-weight:700">محادثة تجريبية</span><button class="ghost" onclick="newChat()">🆕 محادثة جديدة</button></div>
+<div class="chatbox" id="chat" style="margin-top:10px"><div class="chat-empty" id="chatEmpty">👋 أهلاً بيك في المحادثة التجريبية<br><small>جرّب: "عايز احجز كشف أسنان بكرة الساعة 7 المغرب"</small></div></div>
+<div class="quick">
+<button onclick="q('ازيك')">ازيك 👋</button>
+<button onclick="q('بكام كشف الأسنان؟')">سعر الأسنان؟</button>
+<button onclick="q('مواعيدكم ايه؟')">مواعيدكم؟</button>
+  <button onclick="q('ما هو القولون العصبي؟')">القولون؟ 🩺</button>
+  <button onclick="q('عايز احجز')">احجز 🗓️</button>
+<button onclick="q('عايز ألغي الحجز')">إلغاء الحجز ❌</button>
+</div>
+<div class="row"><input id="t" style="flex:1;min-width:200px" placeholder="اكتب زي عميل..."><button id="micBtn" class="ghost" onclick="mic()" title="تسجيل صوتي">🎤</button><button onclick="send()">ابعت ➤</button></div>
+</div>
+
+<div class="card hidden" id="p-books">
+<div class="row"><input id="search" placeholder="🔍 دور بالاسم أو الموبايل" oninput="renderBooks()"><button class="ghost" onclick="load()">تحديث ↻</button></div>
+<div style="overflow:auto"><table><thead><tr><th>الاسم</th><th>موبايل</th><th>خدمة</th><th>دكتور</th><th>معاد</th><th>حالة</th><th></th></tr></thead><tbody id="b"></tbody></table></div>
+</div>
+
+<div class="card hidden" id="p-msgs"><button class="ghost" onclick="load()">تحديث ↻</button><div id="m"></div></div>
+
+<div class="card hidden" id="p-hands">
+<div class="row"><span style="font-weight:700">عملاء طلبوا موظف بشري</span><button class="ghost" onclick="load()">تحديث ↻</button></div>
+<div id="h"></div>
+</div>
+
+<div class="card hidden" id="p-reports">
+<div class="row"><span style="font-weight:700">تقارير العيادة</span><button class="ghost" onclick="load()">تحديث ↻</button></div>
+<div class="card" style="margin:12px 0"><span style="font-weight:700">⏳ قائمة الانتظار</span><div id="wait"></div></div>
+<div class="stats" style="margin-top:12px">
+<div class="stat"><small>إيراد متوقع (غير الملغي)</small><b id="rRev">-</b></div>
+<div class="stat"><small>حضر</small><b id="rAtt">-</b></div>
+<div class="stat"><small>غايب</small><b id="rNo">-</b></div>
+<div class="stat"><small>نسبة الغياب</small><b id="rRate">-</b></div>
+</div>
+<div id="rSpec"></div>
+<div class="row"><button class="green" onclick="recallNow()">📣 متابعة الغايبين (حسب كل تخصص)</button><button class="ghost" onclick="exportCSV()">⬇️ تصدير إكسل (CSV)</button></div>
+<div class="row"><input id="bcText" placeholder="رسالة جماعية لحجوزات النهاردة (مثال: الدكتور هيتأخر ساعة)" style="flex:1"><button onclick="broadcast()">📢 ابعت للكل</button></div>
+<div class="grid2" style="margin-top:12px">
+<div class="stat"><small>دقة AI (بدون بشري)</small><b id="rAI">-</b></div>
+<div class="stat"><small>تحويل لبشري</small><b id="rH">-</b></div>
+<div class="stat"><small>متوسط الرد</small><b id="rResp">-</b></div>
+<div class="stat"><small>إجمالي المحادثات</small><b id="rConv">-</b></div>
+</div>
+<div id="rTop" style="margin-top:12px"></div>
+</div>
+
+<div class="card hidden" id="p-kb">
+<div class="row"><span style="font-weight:700">📚 قاعدة المعرفة (بدل ما الـ AI يخترع)</span><button class="ghost" onclick="load()">تحديث ↻</button></div>
+<div class="row"><input id="kbT" placeholder="عنوان (مثال: سياسة الإلغاء)" style="flex:1"><input id="kbB" placeholder="النص..." style="flex:2"><button class="green" onclick="kbAdd()">إضافة ✅</button></div>
+<div id="kb"></div>
+</div>
+
+<div class="card hidden" id="p-patients">
+<div class="row"><span style="font-weight:700">👤 ملف المرضى (تاريخ مرضي/حساسية/أدوية + سجل زيارات)</span><button class="ghost" onclick="load()">تحديث ↻</button></div>
+<div class="row"><input id="pSearch" placeholder="🔍 دور بالاسم أو الرقم أو ID (مثال: أحمد / 010... / 1001)" oninput="renderPatients()" dir="ltr" style="flex:1"></div>
+<div id="plist"></div>
+<div id="pdetail"></div>
+</div>
+
+<div class="card hidden" id="p-audit">
+<div class="row"><span style="font-weight:700">🛡️ سجل التحركات + الإشعارات</span><button class="ghost" onclick="load()">تحديث ↻</button></div>
+<div class="grid2"><div><h4>تحركات (Audit)</h4><div id="au"></div></div><div><h4>إشعارات (Notifications)</h4><div id="nt"></div></div></div>
+<div><h4>⏰ حالة المهام المجدولة (Cron)</h4><div id="cron"></div></div>
+</div>
+
+<div class="card hidden" id="p-users">
+<div class="row"><span style="font-weight:700">👥 المستخدمون والأدوار (أدمن فقط)</span><button class="ghost" onclick="load()">تحديث ↻</button></div>
+<div class="row"><input id="nuU" placeholder="اسم مستخدم" dir="ltr"><input id="nuP" type="password" placeholder="باسورد (6+)"><select id="nuR"><option value="reception">reception</option><option value="doctor">doctor</option><option value="admin">admin</option></select><button class="green" onclick="userAdd()">+ مستخدم</button></div>
+<div id="ulist"></div>
+</div>
+
+<div class="card hidden" id="p-setup">
+<h3>بيانات المجمع الطبي</h3>
+<div class="grid2">
+<div><label>اسم المكان</label><br><input id="cName" style="width:100%"></div>
+<div><label>تليفون الطوارئ</label><br><input id="cEmg" style="width:100%" dir="ltr" placeholder="01xxxxxxxxx"></div>
+</div><br>
+<div><label>المواعيد</label><br><input id="cHours" style="width:100%"></div><br><br>
+<label>العنوان</label><br><input id="cAddr" style="width:100%"><br><br>
+<label>قواعد الحجز</label><br><textarea id="cRules" style="width:100%" rows="2"></textarea><br><br>
+<div class="row"><button class="green" onclick="saveConfig()">حفظ ✅</button><button class="ghost" onclick="backupNow()">💾 نسخة محلية</button><button class="ghost" onclick="backupDl()">⬇️ تحميل</button><button class="ghost" onclick="purgeTest()">🧪 مسح بيانات التجربة</button><button class="danger" onclick="resetAll()">مسح كل الداتا 🗑️</button></div>
+<p><small>إجازات استثنائية: في ملف <code>src/business-config.json</code> ضيف تواريخ في <code>schedule.closedDates</code> (مثال: ["2026-09-20"]) أو لكل دكتور <code>unavailableDates</code>.</small></p>
+<p><small id="svcInfo"></small></p>
+<div class="row"><input id="nsN" placeholder="خدمة جديدة"><input id="nsP" placeholder="سعر" dir="ltr"><input id="nsS" placeholder="تخصص"><button class="green" onclick="svcAdd()">+ خدمة</button></div>
+<div class="row"><input id="ndN" placeholder="دكتور جديد"><input id="ndS" placeholder="تخصص"><button class="green" onclick="docAdd()">+ دكتور</button></div>
+<div class="row"><input id="ntN" placeholder="رأي: اسم المريض"><input id="ntT" placeholder="نص الرأي" style="flex:2"><button class="green" onclick="tstAdd()">+ رأي ⭐</button></div>
+<div class="row"><input id="nfQ" placeholder="سؤال شائع" style="flex:1"><input id="nfA" placeholder="الإجابة" style="flex:2"><button class="green" onclick="faqAdd()">+ سؤال ❓</button></div>
+<div class="row"><input id="cTag" placeholder="سطر الموقع (tagline)" style="flex:2"><button class="green" onclick="saveTag()">حفظ السطر ✅</button></div>
+<div id="contentList"></div>
+<p><small>لربط واتساب حقيقي: انسخ `.env.example` لـ `.env` وحط التوكن، وللذكاء الكامل حط `OPENAI_API_KEY` واعمل restart.</small></p>
+</div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+let BOOKS=[];
+// Multi-tenant: العيادة من subdomain أو ?clinic= (تتحفظ للمتصفح)
+let CLINIC=(()=>{try{
+  const q=new URLSearchParams(location.search).get('clinic');
+  if(q){localStorage.setItem('clinic',q);return q;}
+  const h=location.hostname.split('.');
+  if(h.length>2&&h[0]!=='www')return h[0];
+  return localStorage.getItem('clinic')||'default';
+}catch{return 'default';}})();
+(()=>{const _f=window.fetch.bind(window);
+window.fetch=(u,o)=>{if(typeof u==='string'&&u.startsWith('/api/')&&!u.startsWith('/api/super/')&&!/[?&]clinic=/.test(u))u+=(u.includes('?')?'&':'?')+'clinic='+encodeURIComponent(CLINIC);return _f(u,o);};})();
+function toggleTheme(){const d=document.body.classList.toggle('dark');document.getElementById('themeBtn').textContent=d?'☀️ نهاري مريح':'🌙 ليلي مريح';try{localStorage.setItem('theme',d?'dark':'light');}catch{}}
+try{if(localStorage.getItem('theme')==='dark'){document.body.classList.add('dark');document.getElementById('themeBtn').textContent='☀️ نهاري مريح';}}catch{}
+function toast(x){const e=document.getElementById('toast');e.textContent=x;e.style.display='block';setTimeout(()=>e.style.display='none',2000);}
+function tab(n){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.t===n));['chat','books','msgs','hands','reports','kb','patients','audit','users','setup'].forEach(k=>document.getElementById('p-'+k).classList.toggle('hidden',k!==n));}
+let ROLE='reception',USERNAME='';
+function q(t){document.getElementById('t').value=t;send();}
+function esc(s){return String(s||'').replace(/</g,'&lt;');}
+async function send(){
+  const inp=document.getElementById('t');const text=inp.value.trim();if(!text)return;inp.value='';
+  const ce=document.getElementById('chatEmpty');if(ce)ce.remove();
+  document.getElementById('chat').innerHTML+=`<div class="bub client">${esc(text)}</div>`;
+  const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:getPhone(),text})});
+  const j=await r.json();
+  document.getElementById('chat').innerHTML+=`<div class="bub bot">${esc(j.reply||j.error)}</div>`;
+  document.getElementById('chat').scrollTop=1e9;load(true);
+}
+async function logout(){await fetch('/api/logout',{method:'POST'});location.href='/login.html'+(CLINIC&&CLINIC!=='default'?'?clinic='+encodeURIComponent(CLINIC):'');}
+async function load(silent){
+  const s0=await fetch('/api/stats');
+  if(s0.status===401){location.href='/login.html';return;}
+  const s=await s0.json();
+  const [b,m,c,st,h,rep]=await Promise.all([fetch('/api/bookings').then(r=>r.json()),fetch('/api/messages').then(r=>r.json()),fetch('/api/config').then(r=>r.json()),fetch('/api/status').then(r=>r.json()),fetch('/api/handoffs').then(r=>r.json()),fetch('/api/reports').then(r=>r.json())]);
+  const [kb,au,nt]=await Promise.all([fetch('/api/kb').then(r=>r.json()).catch(()=>[]),fetch('/api/audit').then(r=>r.json()).catch(()=>[]),fetch('/api/notifications').then(r=>r.json()).catch(()=>[])]);
+  const cron=await fetch('/api/cron-status').then(r=>r.json()).catch(()=>[]);
+  const me=await fetch('/api/role').then(r=>r.json()).catch(()=>({}));
+  ROLE=me.role||'reception';USERNAME=me.username||'';
+  document.getElementById('bRole').textContent='دور: '+ROLE+(USERNAME?' ('+USERNAME+')':'');
+  document.getElementById('tab-users').style.display=ROLE==='admin'?'':'none';
+  if(ROLE==='doctor'&&me.doctor){document.getElementById('search').value=me.doctor;toast('حجوزاتك يا '+me.doctor+' 🌹');}
+  document.getElementById('sTotal').textContent=s.totalBookings;document.getElementById('sToday').textContent=s.todayBookings;
+  document.getElementById('sClients').textContent=s.clients;document.getElementById('sMsgs').textContent=s.totalMessages;
+  const open=h.filter(x=>!x.done);
+  document.getElementById('hCount').textContent=open.length?`(${open.length})`:'';
+  document.getElementById('h').innerHTML=h.map(x=>`<div class="msg">📞 <b dir="ltr">${esc(x.phone)}</b> — ${esc(x.reason||'')}<br><small>${new Date(x.at).toLocaleString('ar-EG')} — ${x.done?'✅ اتحل':'⏳ مستني موظف'}</small> ${x.done?'':`<button class="ghost" onclick="resolveH('${esc(x.phone)}')">تم الحل ✅</button>`}</div>`).join('')||'مفيش حد مستني 🙏';
+  document.getElementById('rRev').textContent=rep.totalRevenue===undefined?'🔒 أدمن فقط':rep.totalRevenue+' ج';
+  document.getElementById('rAtt').textContent=rep.attended;
+  document.getElementById('rNo').textContent=rep.noShow;
+  document.getElementById('rRate').textContent=rep.noShowRate+'%';
+  document.getElementById('rSpec').innerHTML='<table><thead><tr><th>التخصص</th><th>حجوزات</th><th>إيراد</th></tr></thead><tbody>'+Object.entries(rep.bySpecialty).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${v.count}</td><td>${v.revenue===undefined?'🔒':v.revenue+' ج'}</td></tr>`).join('')+'</tbody></table>'
+  +'<br><table><thead><tr><th>الدكتور</th><th>حجوزات</th><th>إيراد</th></tr></thead><tbody>'+Object.entries(rep.byDoctor||{}).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${v.count}</td><td>${v.revenue===undefined?'🔒':v.revenue+' ج'}</td></tr>`).join('')+'</tbody></table>'
+  +'<br><small>آخر 14 يوم:</small><div style="display:flex;gap:4px;align-items:flex-end;margin-top:6px">'+(rep.daily||[]).map(d=>{const h=Math.min(60,4+d.count*8);return `<div title="${esc(d.date)}: ${d.count}" style="flex:1;background:var(--accent);border-radius:4px;height:${h}px;min-width:14px"></div>`;}).join('')+'</div><div style="display:flex;gap:4px"><div style="flex:1;min-width:14px"></div></div>';
+  document.getElementById('rAI').textContent=(rep.aiResolution||0)+'%';
+  document.getElementById('rH').textContent=(rep.handoffRate||0)+'%';
+  document.getElementById('rResp').textContent=(rep.avgRespSec||0)+' ث';
+  document.getElementById('rConv').textContent=rep.totalConvs||0;
+  document.getElementById('rTop').innerHTML='<small>أكثر الخدمات: '+esc((rep.topServices||[]).map(x=>x.service+' ('+x.c+')').join('، ')||'-')+'</small><br><small>أكثر الأسئلة: '+esc((rep.topQuestions||[]).map(x=>x.q).join(' | ')||'-')+'</small><br><small>💰 إجمالي عربون: '+((rep.totalDeposit??'🔒'))+'ج — مدفوع: '+(rep.paidCount??'🔒')+'</small>';
+  document.getElementById('kb').innerHTML=kb.map(x=>`<div class="msg"><b>${esc(x.title)}</b><br><small>${esc((x.body||'').slice(0,200))}</small> <button class="danger" onclick="kbDel('${x.id}')">حذف</button></div>`).join('')||'فاضية — ضيف سياسة الإلغاء والعنوان والأسئلة الشائعة';
+  document.getElementById('au').innerHTML=au.slice(0,30).map(x=>`<div class="msg"><small>${new Date(x.at).toLocaleString('ar-EG')} — ${esc(x.actor)} / ${esc(x.action)}</small><br>${esc(x.detail||'')}</div>`).join('')||'لا يوجد';
+  document.getElementById('nt').innerHTML=nt.slice(0,30).map(x=>`<div class="msg"><small>${new Date(x.at).toLocaleString('ar-EG')} — ${esc(x.phone)} [${esc(x.kind)}]</small><br>${esc(x.text||'')}</div>`).join('')||'لا يوجد';
+  const wl=await fetch('/api/waitlist').then(r=>r.json()).catch(()=>[]);
+  document.getElementById('wait').innerHTML=wl.map(x=>`<div class="msg">⏳ <b>${esc(x.name||'')}</b> <span dir="ltr">${esc(x.phone)}</span> — ${esc(x.service)} ${esc(x.date)} <button class="ghost" onclick="waitNotify('${x.id}')">بلغ 📣</button> <button class="danger" onclick="waitDel('${x.id}')">حذف</button></div>`).join('')||'فاضية';
+  document.getElementById('cron').innerHTML=(cron||[]).map(x=>`<div class="msg">${x.last_failure&&(!x.last_success||x.last_failure>x.last_success)?'🔴':'🟢'} <b>${esc(x.name)}</b> — آخر نجاح: ${x.last_success?new Date(x.last_success).toLocaleString('ar-EG'):'—'}${x.last_error?' — <small>خطأ: '+esc(x.last_error)+'</small>':''}</div>`).join('')||'لا يوجد';
+  const qq=ROLE==='admin'?await fetch('/api/queue-status').then(r=>r.json()).catch(()=>null):null;
+  if(qq)document.getElementById('cron').innerHTML+=`<div class="msg">📬 الطابور: معلق ${qq.pending||0} — فاشل ${qq.failed||0}</div>`;
+  if(ROLE==='admin'){
+    const ul=await fetch('/api/users').then(r=>r.json()).catch(()=>[]);
+    document.getElementById('ulist').innerHTML=ul.map(x=>`<div class="msg">👤 <b dir="ltr">${esc(x.username)}</b> — ${esc(x.role)} — ${x.active?'✅ نشط':'⛔ موقوف'}${x.doctor?' — 🩺 '+esc(x.doctor):''} <small>آخر دخول: ${x.last_login?new Date(x.last_login).toLocaleString('ar-EG'):'—'}</small><br><small>ربط بدكتور:</small> <input id="dl-${esc(x.username)}" placeholder="د. أحمد" value="${esc(x.doctor||'')}" style="width:130px"> <button class="ghost" onclick="linkDoc('${esc(x.username)}')">ربط</button> <button class="ghost" onclick="userToggle('${esc(x.username)}',${x.active?0:1})">${x.active?'إيقاف':'تفعيل'}</button> <button class="danger" onclick="userDel('${esc(x.username)}')">حذف</button></div>`).join('')||'لا يوجد';
+  }
+  BOOKS=b;renderBooks();renderPatients();
+  document.getElementById('m').innerHTML=m.map(x=>`<div class="msg"><small>${new Date(x.at).toLocaleString('ar-EG')} — ${x.from} [${x.direction}]</small><br>${esc(x.text)}</div>`).join('')||'لا يوجد';
+  document.getElementById('bizName').textContent=c.name||'موظف AI مصري';
+  document.getElementById('cName').value=c.name||'';document.getElementById('cHours').value=c.working_hours||'';
+  document.getElementById('cAddr').value=c.address||'';document.getElementById('cRules').value=c.booking_rules||'';
+  document.getElementById('cEmg').value=c.emergency_phone||'';
+  document.getElementById('svcInfo').textContent='التخصصات والخدمات ('+(c.services||[]).length+'): '+(c.services||[]).map(s=>s.name+' '+s.price+'ج').join('، ');
+  document.getElementById('cTag').placeholder='سطر الموقع الحالي: '+(c.tagline||'—');
+  document.getElementById('contentList').innerHTML='<small>⭐ الآراء:</small> '+((c.testimonials||[]).map((t,i)=>`<span class="pill">${esc(t.name)} <a href="#" onclick="contentDel('testimonial','${i}');return false">✖</a></span>`).join(' ')||'—')+'<br><small>❓ الأسئلة:</small> '+((c.faqs||[]).map((f,i)=>`<span class="pill">${esc(f.q).slice(0,25)} <a href="#" onclick="contentDel('faq','${i}');return false">✖</a></span>`).join(' ')||'—');
+  const w=document.getElementById('bWA'),a=document.getElementById('bAI');
+  w.textContent=st.whatsapp?'واتساب: متصل ✅':'واتساب: تجريبي';w.className='badge '+(st.whatsapp?'on':'');
+  a.textContent=st.openai?('ذكاء: '+st.model+' ✅'):'ذكاء: تجريبي';a.className='badge '+(st.openai?'on':'warn');
+  if(st.clinic&&st.clinic!=='default')document.getElementById('bRole').textContent+=' | 🏥 '+st.clinic;
+  if(st.sub&&st.sub.plan==='trial')toast('فترة تجريبية: باقي '+(st.sub.daysLeft||0)+' يوم');
+  if(st.sub&&!st.sub.active)toast('🔴 اشتراك العيادة منتهي — الحجوزات متوقفة');
+  if(!silent&&s.lastBooking)toast('آخر حجز: '+(s.lastBooking.name||'')+' '+s.lastBooking.slot);
+}
+function stLabel(s){return {confirmed:'مؤكد',reminded:'مستني تأكيد',cancelled:'ملغي',attended:'حضر ✅',no_show:'غايب ❌'}[s]||s;}
+function renderBooks(){
+  const f=(document.getElementById('search').value||'').trim();
+  const list=BOOKS.filter(x=>!f||(x.name+x.phone+x.service+x.slot+(x.doctor||'')+(x.code||'')).includes(f));
+  document.getElementById('b').innerHTML=list.map(x=>`<tr><td>${esc(x.name)}<br><small dir="ltr">${esc(x.code||'')}</small></td><td dir="ltr">${esc(x.phone)}</td><td>${esc(x.service)}</td><td>${esc(x.doctor||'-')}</td><td>${esc(x.slot)}${x.needs_review?' <span class="pill reminded">🌙 مراجعة</span>':''}<br><small>عربون: ${x.deposit||0}ج ${x.paid?'✅ مدفوع':''}</small></td><td><span class="pill ${x.status}">${stLabel(x.status)}</span></td><td>${x.needs_review?`<button class="green" onclick="reviewOk('${x.id}')">تأكيد ✔</button> `:''}<button class="ghost" onclick="setSt('${x.id}','attended')">حضر</button> <button class="ghost" onclick="setSt('${x.id}','no_show')">غايب</button> <button class="ghost" onclick="pay('${x.id}')">💰 عربون</button> <button class="ghost" onclick="setSt('${x.id}','${x.status==='cancelled'?'confirmed':'cancelled'}')">${x.status==='cancelled'?'رجوع':'إلغاء'}</button> <button class="danger" onclick="del('${x.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan=7>لا يوجد حجوزات</td></tr>';
+}
+async function reviewOk(id){await fetch('/api/bookings/'+id+'/review',{method:'POST'});toast('اتأكد ✔');load(true);}
+async function del(id){if(!confirm('تحذف الحجز؟'))return;const r=await fetch('/api/bookings/'+id,{method:'DELETE'});if(r.status===403)return toast('الحذف النهائي للأدمن فقط — استخدم إلغاء');load();}
+async function setSt(id,st){await fetch('/api/bookings/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:st})});load();}
+async function saveConfig(){await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:document.getElementById('cName').value,working_hours:document.getElementById('cHours').value,address:document.getElementById('cAddr').value,booking_rules:document.getElementById('cRules').value,emergency_phone:document.getElementById('cEmg').value})});toast('اتحفظ ✅');load(true);}
+function chatPlaceholder(){document.getElementById('chat').innerHTML='<div class="chat-empty" id="chatEmpty">👋 أهلاً بيك في المحادثة التجريبية<br><small>جرّب: "عايز احجز كشف أسنان بكرة الساعة 7 المغرب"</small></div>';}
+async function resetAll(){if(!confirm('تمسح كل الحجوزات والرسائل؟'))return;await fetch('/api/reset',{method:'POST'});chatPlaceholder();load();}
+async function purgeTest(){if(!confirm('تمسح حجوزات ورسائل التجربة فقط؟ (الحقيقي سليم)'))return;const r=await fetch('/api/admin/purge-test',{method:'POST'}).then(x=>x.json());toast('اتمسح: حجوزات '+(r.bookings||0)+' + رسائل '+(r.messages||0)+' ✅');load(true);}
+function getPhone(){try{let p=localStorage.getItem('clinic_phone');if(!p){p='web-'+Math.random().toString(36).slice(2,9);localStorage.setItem('clinic_phone',p);}return p;}catch{return 'test';}}
+async function newChat(){await fetch('/api/new-chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:getPhone()})});chatPlaceholder();toast('محادثة جديدة ✅ جرب موضوع مختلف');}
+// فويس من المتصفح (Web Speech API مجاناً — للتجربة في الداشبورد، وواتساب الحقيقي بيستخدم Whisper)
+let rec=null,recOn=false;
+function mic(){
+  if(window.isSecureContext===false){toast('الميك محتاج رابط آمن (HTTPS) — على السيرفر لازم شهادة SSL');return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('المتصفح ده مش بيدعم الفويس، افتح بـ Chrome');return;}
+  const btn=document.getElementById('micBtn'),inp=document.getElementById('t');
+  if(recOn){rec.stop();return;}
+  rec=new SR();rec.lang='ar';rec.interimResults=true;
+  recOn=true;btn.textContent='🔴 إيقاف';
+  let final='';
+  rec.onresult=e=>{let inter='';for(const r of e.results){if(r.isFinal)final+=r[0].transcript;else inter+=r[0].transcript;}inp.value=(final||inter).trim();};
+  rec.onend=()=>{recOn=false;btn.textContent='🎤';if(inp.value.trim())send();};
+  rec.onerror=()=>{recOn=false;btn.textContent='🎤';toast('معرفتش أسمعك، جرب تاني');};
+  try{rec.start();toast('🎤 اتكلم دلوقتي...');}catch{recOn=false;btn.textContent='🎤';}
+}
+async function resolveH(phone){await fetch('/api/handoffs/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone})});load(true);}
+async function recallNow(){if(!confirm('تبعت متابعة لكل الغايبين حسب تخصصه (أسنان 6ش/باطنة شهر)؟'))return;const r=await fetch('/api/recall-now',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})}).then(x=>x.json());toast('اتبعت لـ '+r.sent+' مريض ✅ ('+(r.mode||'')+')');}
+function exportCSV(){location.href='/api/export.csv';}
+async function broadcast(){const t=document.getElementById('bcText').value;if(!t.trim())return toast('اكتب الرسالة');if(!confirm('تبعت الرسالة لكل حجوزات النهاردة؟'))return;const r=await fetch('/api/broadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).then(x=>x.json());toast('اتبعت لـ '+r.sent+' ✅');document.getElementById('bcText').value='';}
+async function pay(id){const d=prompt('قيمة العربون (جنيه):','100');if(d===null)return;const p=confirm('اتدفع خلاص؟ (OK=مدفوع / Cancel=مسجل بس)');await fetch('/api/bookings/'+id+'/pay',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({deposit:Number(d)||0,paid:p?1:0})});load(true);}
+let PATIENTS=[];
+async function renderPatients(){
+  const f=(document.getElementById('pSearch').value||'').trim();
+  try{PATIENTS=await fetch('/api/patients'+(f?'?q='+encodeURIComponent(f):'')).then(r=>r.json());}catch{PATIENTS=[];}
+  const list=PATIENTS;
+  document.getElementById('plist').innerHTML=list.slice(0,50).map(x=>`<div class="msg">🆔 <b>${x.pid||'-'}</b> 👤 <b>${esc(x.name||'بدون اسم')}</b> <span dir="ltr">${esc(x.phone)}</span> — زيارات: ${x.visits||0} — آخر: ${esc(x.lastService||'-')} <button class="ghost" onclick="openPatient('${esc(x.phone)}')">فتح الملف 📂</button></div>`).join('')||'لا يوجد مرضى — المرضى بيتسجلوا تلقائياً مع أول حجز';
+}
+async function openPatient(phone){
+  const p=await fetch('/api/patients/'+encodeURIComponent(phone)).then(r=>r.json());
+  const canMed=(ROLE==='admin'||ROLE==='doctor');
+  const medF=(label,id,val)=>canMed?`<div><label>${label}</label><br><input id="${id}" value="${esc(val||'')}" style="width:100%"></div>`:`<div><label>${label} 🔒</label><br><small>للدكتور فقط</small></div>`;
+  const medT=canMed?`<div><label>تاريخ مرضي</label><br><textarea id="pfH" rows="2" style="width:100%">${esc(p.history||'')}</textarea></div>`:`<div><label>تاريخ مرضي 🔒</label><br><small>للدكتور فقط</small></div>`;
+  const visits=(p.medicalVisits||[]).map(v=>`<tr><td>${esc(v.at||'').slice(0,10)}</td><td>${esc(v.doctor||'-')}</td><td>${esc(v.complaint||'-')}</td><td>${esc(v.diagnosis||(canMed?'-':'🔒'))}</td><td>${esc(v.treatment||(canMed?'-':'🔒'))}</td></tr>`).join('');
+  document.getElementById('pdetail').innerHTML=`<div class="card" style="margin-top:10px"><h4>🆔 ${p.pid||'-'} — 📂 ${esc(p.name||'')} — <span dir="ltr">${esc(p.phone)}</span></h4>
+  <div class="grid2">
+  ${medT}
+  ${medF('حساسية','pfA',p.allergies)}
+  ${medF('أدوية ثابتة','pfM',p.meds)}
+  ${medF('ملاحظات','pfN',p.notes)}
+  </div><br><div class="row"><button class="green" onclick="savePatient('${esc(phone)}')">حفظ الملف ✅</button><button class="ghost" onclick="changeNumber('${esc(phone)}')">🔄 تغيير الرقم (OTP)</button><span class="pill">إجمالي عربون: ${p.totalDeposit||0}ج</span></div>
+  <h4>🩺 الزيارات الطبية (${(p.medicalVisits||[]).length}) ${canMed?'':'(التشخيص للدكتور فقط)'}</h4>
+  ${canMed?`<div class="row"><input id="nvC" placeholder="شكوى المريض" style="flex:2"><input id="nvD" placeholder="دكتور"><input id="nvDi" placeholder="تشخيص"><input id="nvT" placeholder="علاج"><button class="green" onclick="visitAdd('${esc(p.pid||p.phone)}')">+ زيارة</button></div>`:''}
+  <table><thead><tr><th>التاريخ</th><th>دكتور</th><th>شكوى</th><th>تشخيص</th><th>علاج</th></tr></thead><tbody>${visits}</tbody></table>
+  <h4>📎 المستندات (تحاليل/أشعة/روشتة) ${canMed?'':'(العرض للدكتور فقط)'}</h4>
+  <div class="row"><select id="dcK"><option>تحليل</option><option>أشعة</option><option>روشتة</option><option>أخرى</option></select><input type="file" id="dcF" accept=".pdf,.jpg,.jpeg,.png"><button class="green" onclick="docUpload('${esc(phone)}')">رفع 📤</button></div>
+  <div id="docs"></div>
+  <h4>سجل الحجوزات (${(p.visitsList||[]).length})</h4>
+  <table><thead><tr><th>التاريخ</th><th>خدمة</th><th>دكتور</th><th>حالة</th><th>عربون</th></tr></thead><tbody>${(p.visitsList||[]).map(v=>`<tr><td>${esc(v.date||'')} ${esc(v.time||'')}</td><td>${esc(v.service)}</td><td>${esc(v.doctor||'-')}</td><td>${stLabel(v.status)}</td><td>${v.deposit||0}ج</td></tr>`).join('')}</tbody></table></div>`;
+  loadDocs(phone);
+}
+async function loadDocs(phone){
+  const list=await fetch('/api/docs?patient='+encodeURIComponent(phone)).then(r=>r.json()).catch(()=>[]);
+  const canMed=(ROLE==='admin'||ROLE==='doctor');
+  document.getElementById('docs').innerHTML=list.map(d=>`<div class="msg">📎 ${esc(d.kind)} — ${esc(d.filename)} <small>(${(d.size/1024).toFixed(0)}KB)</small> ${canMed?`<a href="/api/docs/${d.id}" target="_blank">عرض</a> <button class="danger" onclick="docDel('${d.id}','${esc(phone)}')">حذف</button>`:'🔒'}</div>`).join('')||'<small>لا توجد مستندات</small>';
+}
+async function docUpload(phone){
+  const f=document.getElementById('dcF').files[0];
+  if(!f)return toast('اختار ملف (PDF/JPG/PNG حتى 5MB)');
+  const buf=await f.arrayBuffer();
+  if(buf.byteLength>5*1024*1024)return toast('الملف أكبر من 5MB');
+  let bin='';const u8=new Uint8Array(buf);
+  for(let i=0;i<u8.length;i+=8192)bin+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));
+  const b64=btoa(bin);
+  const r=await fetch('/api/docs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patient:phone,kind:document.getElementById('dcK').value,filename:f.name,mime:f.type,data:b64})}).then(x=>x.json());
+  if(r.error)return toast('فشل: '+r.error);
+  toast('اترفع ✅');loadDocs(phone);
+}
+async function docDel(id,phone){if(!confirm('تحذف المستند؟'))return;await fetch('/api/docs/'+id,{method:'DELETE'});loadDocs(phone);}
+async function savePatient(phone){
+  const b={};
+  if(document.getElementById('pfH'))b.history=document.getElementById('pfH').value;
+  if(document.getElementById('pfA'))b.allergies=document.getElementById('pfA').value;
+  if(document.getElementById('pfM'))b.meds=document.getElementById('pfM').value;
+  if(document.getElementById('pfN'))b.notes=document.getElementById('pfN').value;
+  const r=await fetch('/api/patients/'+encodeURIComponent(phone),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+  if(r.status===403)return toast('ممنوع لدورك (طبي للدكتور فقط)');
+  toast('اتحفظ ✅');renderPatients();
+}
+async function visitAdd(pid){
+  const b={patient:pid,complaint:document.getElementById('nvC').value,doctor:document.getElementById('nvD').value,diagnosis:document.getElementById('nvDi').value,treatment:document.getElementById('nvT').value};
+  if(!b.complaint)return toast('اكتب الشكوى');
+  const r=await fetch('/api/visits',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+  if(!r.ok)return toast('فشل (دكتور/أدمن فقط)');
+  toast('اتسجلت الزيارة ✅');openPatient(pid);
+}
+async function changeNumber(oldPhone){  const np=prompt('الرقم الجديد (11 رقم يبدأ بـ 010/011/012/015):','');
+  if(!np)return;
+  const r1=await fetch('/api/otp/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({oldPhone,newPhone:np})}).then(x=>x.json());
+  if(!r1.ok)return toast('فشل: '+(r1.error||''));
+  const hint=r1.mock&&r1.code?` (تجريبي: الكود ${r1.code})`:' (اتبعت واتساب على الرقم القديم)';
+  const code=prompt('دخل الكود المبعوت على الرقم القديم'+hint,'');
+  if(!code)return;
+  const r2=await fetch('/api/otp/confirm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({oldPhone,newPhone:np,code})}).then(x=>x.json());
+  if(r2.error)return toast('فشل: '+r2.error);
+  toast('اتنقل الملف للرقم الجديد ✅ (ID ثابت)');renderPatients();openPatient(r2.phone);
+}
+async function userAdd(){const u=document.getElementById('nuU').value,p=document.getElementById('nuP').value,r=document.getElementById('nuR').value;if(!u||!p)return toast('اكتب الاسم والباسورد');const x=await fetch('/api/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p,role:r})}).then(x=>x.json());if(x.error)return toast('فشل: '+x.error);toast('اتضاف ✅');load(true);}
+async function userToggle(u,active){await fetch('/api/users/'+encodeURIComponent(u),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({active})});load(true);}
+async function userDel(u){if(!confirm('تحذف '+u+'؟'))return;await fetch('/api/users/'+encodeURIComponent(u),{method:'DELETE'});load(true);}
+async function linkDoc(u){const d=document.getElementById('dl-'+u).value;await fetch('/api/users/'+encodeURIComponent(u),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({doctor:d})});toast('اتربط ✅');load(true);}
+async function backupNow(){const r=await fetch('/api/backup-now',{method:'POST'}).then(x=>x.json());toast(r.ok?'اتحفظت النسخة ✅':'فشل: '+r.error);}
+async function kbAdd(){const t=document.getElementById('kbT').value,v=document.getElementById('kbB').value;if(!t||!v)return toast('اكتب عنوان ونص');await fetch('/api/kb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,body:v})});document.getElementById('kbT').value='';document.getElementById('kbB').value='';load(true);}
+async function svcAdd(){const n=document.getElementById('nsN').value,p=document.getElementById('nsP').value,s=document.getElementById('nsS').value;if(!n)return toast('اكتب اسم الخدمة');const r=await fetch('/api/services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,price:p,specialty:s||'عام'})});if(r.status===403)return toast('محتاج صلاحية أدمن');toast('اتضافت ✅');load(true);}
+async function docAdd(){const n=document.getElementById('ndN').value,s=document.getElementById('ndS').value;if(!n||!s)return toast('اكتب الدكتور والتخصص');const r=await fetch('/api/doctors',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,specialty:s,days:[]})});if(r.status===403)return toast('محتاج صلاحية أدمن');toast('اتضاف ✅');load(true);}
+async function tstAdd(){const n=document.getElementById('ntN').value,t=document.getElementById('ntT').value;if(!n||!t)return toast('اكتب الاسم والرأي');await fetch('/api/content',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'testimonial',item:{name:n,text:t,stars:5}})});toast('اتضاف ✅');load(true);}
+async function faqAdd(){const q=document.getElementById('nfQ').value,a=document.getElementById('nfA').value;if(!q||!a)return toast('اكتب السؤال والإجابة');await fetch('/api/content',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'faq',item:{q,a}})});toast('اتضاف ✅');load(true);}
+async function saveTag(){const t=document.getElementById('cTag').value;await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tagline:t})});toast('اتحفظ ✅');load(true);}
+async function contentDel(kind,i){await fetch('/api/content/'+kind+'/'+i,{method:'DELETE'});load(true);}
+async function waitNotify(id){await fetch('/api/waitlist/'+id+'/notify',{method:'POST'});toast('اتبعت ✅');load(true);}
+async function waitDel(id){await fetch('/api/waitlist/'+id,{method:'DELETE'});load(true);}
+async function kbDel(id){await fetch('/api/kb/'+id,{method:'DELETE'});load(true);}
+function backupDl(){location.href='/api/backup-download';}
+document.getElementById('t').addEventListener('keydown',e=>{if(e.key==='Enter')send();});
+load(true);
+</script>
+</body>
+</html>

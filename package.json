@@ -1,0 +1,20 @@
+{
+  "name": "mawazaf-ai-masry",
+  "version": "0.1.0",
+  "description": "موظف AI مصري - بيرد واتساب ويحجز مواعيد باللهجة المصرية",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test tests/run.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3",
+    "openai": "^4.47.1",
+    "pg": "^8.23.0",
+    "pgvector": "^0.3.0"
+  }
+}

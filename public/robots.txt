@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /site.html
+Allow: /
+Disallow: /super.html
+Disallow: /api/
+Sitemap: https://mawazaf-ai-masry.fly.dev/sitemap.xml

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>دخول اللوحة</title>
+<style>
+body{margin:0;font-family:'Segoe UI',Tahoma,Arial;background:#f7f3eb;color:#44403c;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.card{background:#fffdf7;border:1px solid #e9e1d2;border-radius:20px;padding:32px 28px;width:min(360px,90vw);box-shadow:0 6px 24px rgba(60,50,30,.12);text-align:center}
+.card h2{color:#2f5d50}
+input{width:100%;padding:12px 14px;border:1px solid #e9e1d2;border-radius:12px;font-size:16px;margin:8px 0;box-sizing:border-box;font-family:inherit}
+input:focus{outline:2px solid #3e7d6a}
+button{width:100%;padding:12px;border:0;border-radius:12px;background:linear-gradient(135deg,#2f5d50,#3e7d6a);color:#fff;font-size:16px;font-weight:700;cursor:pointer}
+.err{color:#b35548;font-size:14px;min-height:22px}
+small{color:#8a8478}
+</style>
+</head>
+<body>
+<div class="card">
+<h2>🔒 لوحة العيادة</h2>
+<p style="color:#8a8478;font-size:14px">دخول بالاسم والباسورد (أو الباسورد القديم لوحده)</p>
+<div class="err" id="e"></div>
+<input id="u" placeholder="اسم المستخدم (اتركه فاضي للدخول القديم)" autocomplete="username">
+<input type="password" id="p" placeholder="الباسورد" autocomplete="current-password" onkeydown="if(event.key==='Enter')go()">
+<button onclick="go()">دخول</button>
+<p><small>أدوار: admin (كل حاجة) / doctor (طبي) / reception (حجوزات)</small></p>
+</div>
+<script>
+const CLINIC=(()=>{try{
+  const q=new URLSearchParams(location.search).get('clinic');
+  if(q){localStorage.setItem('clinic',q);return q;}
+  return localStorage.getItem('clinic')||'default';
+}catch{return 'default';}})();
+async function go(){
+  const username=document.getElementById('u').value.trim();
+  const password=document.getElementById('p').value;
+  const body=username?{username,password}:{password};
+  const r=await fetch('/api/login?clinic='+encodeURIComponent(CLINIC),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));
+  if(r.ok) location.href=CLINIC&&CLINIC!=='default'?'/?clinic='+encodeURIComponent(CLINIC):'/';
+  else document.getElementById('e').textContent=j.error||'بيانات غلط، جرب تاني';
+}
+</script>
+</body>
+</html>
